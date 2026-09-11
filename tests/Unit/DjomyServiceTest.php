@@ -42,6 +42,30 @@ describe('payment links', function () {
 });
 
 describe('payments', function () {
+    it('initiates a portal payment with the gateway endpoint', function () {
+        $history = null;
+        $service = new DjomyService(HttpFactory::client([
+            new Response(201, [], '{"redirectUrl":"https:\/\/sandbox.djomy.africa\/pay\/txn_1"}'),
+        ], $history));
+
+        $payload = [
+            'amount' => 15000,
+            'countryCode' => 'GN',
+            'payerNumber' => '00224623707722',
+            'allowedPaymentMethods' => ['OM', 'CARD'],
+            'returnUrl' => 'https://example.com/payments/success',
+        ];
+
+        $response = $service->initiatePortalPayment($payload);
+
+        $request = $history[0]['request'];
+
+        expect($request->getMethod())->toBe('POST');
+        expect($request->getUri()->getPath())->toBe('/v1/payments/gateway');
+        expect(json_decode((string) $request->getBody(), true))->toBe($payload);
+        expect($response['redirectUrl'])->toBe('https://sandbox.djomy.africa/pay/txn_1');
+    });
+
     it('lists payments with the provided filters', function () {
         $history = null;
         $service = new DjomyService(HttpFactory::client([

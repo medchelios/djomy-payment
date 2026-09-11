@@ -177,6 +177,32 @@ $payment = $service->initiateDirectPayment([
 ]);
 ```
 
+### Demander un paiement avec redirection
+
+Use `initiatePortalPayment()` to call `POST /v1/payments/gateway`. The response
+contains the Djomy redirect URL; redirect the payer to that URL to complete the
+payment. This endpoint supports all payment methods, including `CARD` for Visa
+and Mastercard.
+
+```php
+$payment = $service->initiatePortalPayment([
+    'amount' => 15000,
+    'countryCode' => 'GN',
+    'payerNumber' => '00224623707722',
+    'allowedPaymentMethods' => ['OM', 'MOMO', 'CARD'],
+    'description' => 'Payment for order ORD-456',
+    'merchantPaymentReference' => 'ORD-456',
+    'returnUrl' => 'https://example.com/payments/success',
+    'cancelUrl' => 'https://example.com/payments/cancel',
+    'metadata' => [
+        'order_id' => 'ORD-456',
+        'vip' => true,
+    ],
+]);
+
+$redirectUrl = $payment['redirectUrl'];
+```
+
 ## Gestion des erreurs
 
 Toutes les exceptions héritent de `DjomyException` :

@@ -58,6 +58,12 @@ final class DjomyService
         return (new InitiateDirectPaymentAction($this->client))->execute($params);
     }
 
+    /**
+     * Initiates a payment through the Djomy payment portal.
+     *
+     * @param  array<string, mixed>  $params
+     * @return array<mixed>
+     */
     public function initiatePortalPayment(array $params): array
     {
         return (new InitiatePortalPaymentAction($this->client))->execute($params);
