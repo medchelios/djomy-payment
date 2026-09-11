@@ -40,3 +40,25 @@ describe('payment links', function () {
             ->toBe('/v1/links/ref%20with%20space');
     });
 });
+
+describe('payments', function () {
+    it('lists payments with the provided filters', function () {
+        $history = null;
+        $service = new DjomyService(HttpFactory::client([
+            new Response(200, [], '{"data":[]}'),
+        ], $history));
+
+        $response = $service->getAllPayments([
+            'statuses' => 'SUCCESS,PENDING',
+            'startDate' => '2024-01-01',
+        ]);
+
+        $request = $history[0]['request'];
+
+        expect($request->getMethod())->toBe('GET');
+        expect($request->getUri()->getPath())->toBe('/v1/payments');
+        expect($request->getUri()->getQuery())->toContain('statuses=SUCCESS%2CPENDING');
+        expect($request->getUri()->getQuery())->toContain('startDate=2024-01-01');
+        expect($response)->toBe(['data' => []]);
+    });
+});

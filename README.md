@@ -6,6 +6,8 @@
 
 📦 **Packagist :** [tmoh/djomy-payment](https://packagist.org/packages/tmoh/djomy-payment)
 
+📚 **Documentation officielle :** [developers.djomy.africa](https://developers.djomy.africa/)
+
 Package PHP **agnostique framework** pour l'intégration de la **Djomy Payment Platform API (v1.0)**.
 
 Compatible avec :
@@ -20,6 +22,7 @@ Compatible avec :
 - Récupération de l'**access token de type Bearer**
 - **Lien de paiement** : récupération par référence
 - Génération et consultation des liens de paiement
+- Initiation et consultation des paiements
 - Mapping des erreurs HTTP en exceptions (400, 401, 403, 404, 429, 5xx)
 
 ## Installation
@@ -133,6 +136,23 @@ $paymentLink = $service->generatePaymentLink([
 
 The endpoint used is `POST /v1/links`. Optional `customFields` can be provided
 with `label`, `placeholder`, and `required` values.
+
+### Lister les paiements
+
+```php
+$payments = $service->getAllPayments([
+    'statuses' => 'SUCCESS,PENDING',
+    'startDate' => '2024-01-01',
+    'endDate' => '2024-12-31',
+    'paginationRequest' => [
+        'page' => 0,
+        'size' => 20,
+    ],
+]);
+```
+
+The endpoint used is `GET /v1/payments`. Use `getPaymentStatus($transactionId)`
+to retrieve a specific transaction status.
 
 ### Demander un paiement direct
 

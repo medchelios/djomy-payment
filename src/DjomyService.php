@@ -9,6 +9,7 @@ use Tmoh\DjomyPayment\Actions\GetPaymentStatusAction;
 use Tmoh\DjomyPayment\Actions\InitiateDirectPaymentAction;
 use Tmoh\DjomyPayment\Actions\InitiatePortalPaymentAction;
 use Tmoh\DjomyPayment\Actions\ListPaymentLinksAction;
+use Tmoh\DjomyPayment\Actions\ListPaymentsAction;
 
 /**
  * High-level service for Djomy payment operations.
@@ -60,6 +61,15 @@ final class DjomyService
     public function initiatePortalPayment(array $params): array
     {
         return (new InitiatePortalPaymentAction($this->client))->execute($params);
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<mixed>
+     */
+    public function getAllPayments(array $query = []): array
+    {
+        return (new ListPaymentsAction($this->client))->execute($query);
     }
 
     public function getPaymentStatus(string $transactionId): array
