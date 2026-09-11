@@ -1,0 +1,99 @@
+name: Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, json, pdo, phar, tokenizer, zip, curl, fileinfo, openssl, soap, sodium
+          coverage: none
+
+      - name: Validate package
+        run: composer validate --no-check-publish
+
+      - name: Build package
+        run: composer update --no-dev --no-interaction --no-progress --prefer-dist --no-security-blocking
+
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - php: 8.1
+            laravel: 10.*
+            testbench: 8.*
+          - php: 8.2
+            laravel: 10.*
+            testbench: 8.*
+          - php: 8.3
+            laravel: 10.*
+            testbench: 8.*
+          - php: 8.2
+            laravel: 11.*
+            testbench: 9.*
+          - php: 8.3
+            laravel: 11.*
+            testbench: 9.*
+          - php: 8.3
+            laravel: 12.*
+            testbench: 10.*
+          - php: 8.4
+            laravel: 12.*
+            testbench: 10.*
+          - php: 8.4
+            laravel: 13.*
+            testbench: 11.*
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, json, pdo, phar, tokenizer, zip, curl, fileinfo, openssl, soap, sodium
+        coverage: none
+
+    - name: Pin framework versions
+      run: composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --dev --no-update --no-interaction -W
+
+    - name: Pin Pest versions
+      run: |
+        if [[ "${{ matrix.laravel }}" == 13.* ]]; then
+          composer require "pestphp/pest:^5.0" "pestphp/pest-plugin-laravel:^5.0" --dev --no-update --no-interaction -W
+        elif [[ "${{ matrix.laravel }}" == 12.* ]]; then
+          composer require "pestphp/pest:^4.4.1" "pestphp/pest-plugin-laravel:^4.0" --dev --no-update --no-interaction -W
+        elif [[ "${{ matrix.laravel }}" == 11.* ]]; then
+          composer require "pestphp/pest:^3.7" "pestphp/pest-plugin-laravel:^3.1" --dev --no-update --no-interaction -W
+        else
+          composer require "pestphp/pest:^2.36" "pestphp/pest-plugin-laravel:^2.4" --dev --no-update --no-interaction -W
+        fi
+
+    - name: Install dependencies
+      run: composer update --no-ansi --no-interaction --no-progress --prefer-dist --no-security-blocking
+
+    - name: Execute lint tests with Laravel preset
+      run: vendor/bin/pint --test
+
+    - name: Execute static analysis
+      if: matrix.php == '8.4' && matrix.laravel == '13.*'
+      run: vendor/bin/phpstan analyse
+
+    - name: Execute unit/feature tests
+      run: vendor/bin/pest
