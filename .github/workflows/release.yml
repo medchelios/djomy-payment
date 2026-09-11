@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate and release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, json, pdo, phar, tokenizer, zip, curl, fileinfo, openssl, soap, sodium
+          coverage: none
+
+      - name: Validate package
+        run: composer validate --no-check-publish
+
+      - name: Install dependencies
+        run: composer update --no-ansi --no-interaction --no-progress --prefer-dist --no-security-blocking
+
+      - name: Check formatting
+        run: vendor/bin/pint --test
+
+      - name: Run static analysis
+        run: vendor/bin/phpstan analyse
+
+      - name: Run tests
+        run: vendor/bin/pest
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: gh release create "$TAG" --verify-tag --generate-notes --title "$TAG"
