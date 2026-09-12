@@ -387,6 +387,20 @@ composer format-check
 composer analyse
 ```
 
+## Releases
+
+Les versions suivent [Semantic Versioning](https://semver.org/) et sont automatisées avec [release-please](https://github.com/googleapis/release-please).
+
+1. Les commits sur `main` doivent respecter les [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `feat!:`…).
+2. Un push sur `main` crée ou met à jour une **PR de release** avec le bump de version et le `CHANGELOG.md`.
+3. Merger cette PR crée le **tag** `vX.Y.Z`, la **GitHub Release** et met à jour `composer.json`. Packagist récupère la nouvelle version via son webhook.
+
+| Commit | Bump |
+|---|---|
+| `fix:` | patch |
+| `feat:` | minor |
+| `feat!:` / `BREAKING CHANGE:` | major |
+
 ## Licence
 
 MIT
