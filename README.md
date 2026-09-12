@@ -401,6 +401,10 @@ Les versions suivent [Semantic Versioning](https://semver.org/) et sont automati
 | `feat:` | minor |
 | `feat!:` / `BREAKING CHANGE:` | major |
 
+## Contribution
+
+Les contributions sont les bienvenues. Consulte le guide [CONTRIBUTING.md](CONTRIBUTING.md) pour le processus (branches, conventions de commit, tests, Pull Requests) et le fonctionnement des releases.
+
 ## Licence
 
 MIT
