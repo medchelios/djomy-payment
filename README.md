@@ -116,7 +116,7 @@ $paymentLink = $service->getPaymentLink('PL-2024-0001');
 $paymentLink = $service->generatePaymentLink([
     'amountToPay' => 15000,
     'linkName' => 'Order PL-2024-0001',
-    'phoneNumber' => '00224623707722',
+    'phoneNumber' => '1234567890',
     'sendSms' => false,
     'description' => 'Payment for order PL-2024-0001',
     'countryCode' => 'GN',
@@ -163,7 +163,7 @@ methods. Card payments must use the portal-payment endpoint instead.
 ```php
 $payment = $service->initiateDirectPayment([
     'paymentMethod' => 'OM',
-    'payerIdentifier' => '00224623707722',
+    'payerIdentifier' => '1234567890',
     'amount' => 15000,
     'countryCode' => 'GN',
     'description' => 'Payment for order ORD-456',
@@ -188,7 +188,7 @@ and Mastercard.
 $payment = $service->initiatePortalPayment([
     'amount' => 15000,
     'countryCode' => 'GN',
-    'payerNumber' => '00224623707722',
+    'payerNumber' => '1234567890',
     'allowedPaymentMethods' => ['OM', 'MOMO', 'CARD'],
     'description' => 'Payment for order ORD-456',
     'merchantPaymentReference' => 'ORD-456',
