@@ -23,6 +23,7 @@ Compatible avec :
 - **Lien de paiement** : récupération par référence
 - Génération et consultation des liens de paiement
 - Initiation et consultation des paiements
+- Vérification et parsing des **webhooks** (signature `X-Webhook-Signature`, payloads V1/V2)
 - Mapping des erreurs HTTP en exceptions (400, 401, 403, 404, 429, 5xx)
 
 ## Installation
@@ -47,6 +48,8 @@ DJOMY_CLIENT_ID=your_client_id
 DJOMY_CLIENT_SECRET=your_client_secret
 DJOMY_TIMEOUT=30
 DJOMY_AUTO_AUTHENTICATE=false
+DJOMY_WEBHOOK_URL=https://example.com/webhooks/djomy
+DJOMY_WEBHOOK_VERSION=v2
 ```
 
 
@@ -201,6 +204,60 @@ $payment = $service->initiatePortalPayment([
 ]);
 
 $redirectUrl = $payment['redirectUrl'];
+```
+
+## Webhooks
+
+Les webhooks sont des notifications HTTP `POST` envoyées par Djomy à **votre** endpoint (à configurer dans l'espace développeur Djomy, voir `DJOMY_WEBHOOK_URL`). Chaque payload est signé : la signature HMAC-SHA256 est placée dans l'en-tête `X-Webhook-Signature` au format `v1:<signature>`.
+
+### Vérifier et parser un webhook
+
+`Tmoh\DjomyPayment\Webhooks` vérifie la signature à partir du **body brut** (jamais du body re-décodé) puis renvoie un `WebhookEvent`.
+
+```php
+use Tmoh\DjomyPayment\Facades\DjomyWebhook;
+
+$rawBody = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'] ?? '';
+
+try {
+    $event = DjomyWebhook::parse($rawBody, $signature);
+} catch (Tmoh\DjomyPayment\Exceptions\DjomyException $e) {
+    // signature invalide ou body non JSON : ignorer le webhook
+    abort(400);
+}
+
+$event->eventType();              // ex. "payment.success"
+$event->eventId();                // UUID de l'événement
+$event->paymentLinkReference();   // référence du lien associé
+$event->timestamp();              // date de l'événement
+$event->payment();                // données du paiement (V2)
+$event->payout();                 // données du transfert (V2)
+```
+
+### Versions du payload
+
+L'enveloppe (`message`, `eventType`, `eventId`, `data`, `timestamp`) est identique en V1 et V2 ; seule la structure de `data` change. La version est portée par la configuration webhook (`DJOMY_WEBHOOK_VERSION`, `v2` par défaut).
+
+```php
+$event->payment();                                  // V2 : data.payment
+$event->data(Tmoh\DjomyPayment\Webhooks\WebhookEvent::VERSION_V1); // V1 : data directement
+```
+
+En V2, un seul des deux objets `data.payment` ou `data.payout` est présent selon l'événement.
+
+### Types d'événements
+
+`payment.created`, `payment.redirected`, `payment.pending`, `payment.cancelled`, `payment.timeout`, `payment.success`, `payment.failed`, `payment.refunded`, `payout.success`, `payout.failed`.
+
+Des constantes sont disponibles : `WebhookEvent::PAYMENT_SUCCESS`, `WebhookEvent::PAYOUT_FAILED`, etc.
+
+### Vérification manuelle
+
+```php
+use Tmoh\DjomyPayment\Signature;
+
+$isValid = Signature::verifyWebhook($rawBody, $signatureHeader, $clientSecret);
 ```
 
 ## Gestion des erreurs

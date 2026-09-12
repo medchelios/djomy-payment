@@ -55,4 +55,19 @@ return [
     */
 
     'auto_authenticate' => env('DJOMY_AUTO_AUTHENTICATE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhooks
+    |--------------------------------------------------------------------------
+    |
+    | Endpoint hosted by the application and registered in the Djomy developer
+    | area to receive transaction status notifications. The payload version
+    | (v1 or v2) is carried by the Djomy webhook configuration.
+    |
+    */
+
+    'webhook_url' => env('DJOMY_WEBHOOK_URL'),
+
+    'webhook_version' => env('DJOMY_WEBHOOK_VERSION', 'v2'),
 ];

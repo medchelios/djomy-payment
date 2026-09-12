@@ -53,7 +53,8 @@
                 "Tmoh\\DjomyPayment\\DjomyServiceProvider"
             ],
             "aliases": {
-                "Djomy": "Tmoh\\DjomyPayment\\Facades\\Djomy"
+                "Djomy": "Tmoh\\DjomyPayment\\Facades\\Djomy",
+                "DjomyWebhook": "Tmoh\\DjomyPayment\\Facades\\DjomyWebhook"
             }
         }
     },

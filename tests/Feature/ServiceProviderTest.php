@@ -4,6 +4,8 @@ use Tmoh\DjomyPayment\DjomyClient;
 use Tmoh\DjomyPayment\DjomyService;
 use Tmoh\DjomyPayment\Exceptions\ConfigurationException;
 use Tmoh\DjomyPayment\Facades\Djomy;
+use Tmoh\DjomyPayment\Facades\DjomyWebhook;
+use Tmoh\DjomyPayment\Webhooks;
 
 it('resolves the DjomyService from the container', function () {
     $this->app->forgetInstance('djomy');
@@ -44,4 +46,20 @@ it('shares the same client instance between the service and the container', func
     $service = resolve('djomy');
 
     expect($service->getClient())->toBe($this->app->make('djomy-client'));
+});
+
+it('resolves the webhook verifier from the container', function () {
+    $this->app->forgetInstance('djomy-webhooks');
+
+    $webhooks = $this->app->make('djomy-webhooks');
+
+    expect($webhooks)->toBeInstanceOf(Webhooks::class);
+    expect($webhooks->version())->toBe('v2');
+    expect($this->app[Webhooks::class])->toBeInstanceOf(Webhooks::class);
+});
+
+it('exposes the webhook verifier through the facade', function () {
+    $this->app->forgetInstance('djomy-webhooks');
+
+    expect(DjomyWebhook::version())->toBe('v2');
 });

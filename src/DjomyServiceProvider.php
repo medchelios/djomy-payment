@@ -5,6 +5,7 @@ namespace Tmoh\DjomyPayment;
 use Illuminate\Support\ServiceProvider;
 use Tmoh\DjomyPayment\Endpoints\DjomyEndpoints;
 use Tmoh\DjomyPayment\Exceptions\ConfigurationException;
+use Tmoh\DjomyPayment\Webhooks\WebhookEvent;
 
 class DjomyServiceProvider extends ServiceProvider
 {
@@ -35,8 +36,16 @@ class DjomyServiceProvider extends ServiceProvider
             return new DjomyService($this->app->make('djomy-client'));
         });
 
+        $this->app->singleton('djomy-webhooks', function () {
+            return new Webhooks(
+                (string) config('djomy.client_secret'),
+                (string) config('djomy.webhook_version', WebhookEvent::VERSION_V2),
+            );
+        });
+
         $this->app->alias('djomy-client', DjomyClient::class);
         $this->app->alias('djomy', DjomyService::class);
+        $this->app->alias('djomy-webhooks', Webhooks::class);
     }
 
     public function boot(): void
