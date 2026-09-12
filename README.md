@@ -23,6 +23,9 @@ Compatible avec :
 - **Lien de paiement** : récupération par référence
 - Génération et consultation des liens de paiement
 - Initiation et consultation des paiements
+- Consultation d'un **payout** (transfert sortant) par commande et identifiant
+- **Liste** et **relance** des payouts d'une commande
+- Création, consultation et listing des **orders** de payouts
 - Vérification et parsing des **webhooks** (signature `X-Webhook-Signature`, payloads V1/V2)
 - Mapping des erreurs HTTP en exceptions (400, 401, 403, 404, 429, 5xx)
 
@@ -204,6 +207,97 @@ $payment = $service->initiatePortalPayment([
 ]);
 
 $redirectUrl = $payment['redirectUrl'];
+```
+
+### Détails d'un payout
+
+Use `getPayout($orderId, $payoutId)` to call
+`GET /v1/payout-orders/{orderId}/payout-items/{payoutId}` and retrieve a payout
+item of an order.
+
+```php
+$payout = $service->getPayout(
+    '9f1c2d3e-4a5b-6c7d-8e9f-0a1b2c3d4e5f', // orderId
+    '9f1c2d3e-4a5b-6c7d-8e9f-0a1b2c3d4e5f', // payoutId
+);
+```
+
+### Lister les payouts d'une commande
+
+Use `getPayouts($orderId, $query)` to call
+`GET /v1/payout-orders/{orderId}/payout-items`.
+
+```php
+$payouts = $service->getPayouts('D4E5F6', [
+    'paginationRequest' => [
+        'page' => 0,
+        'size' => 20,
+    ],
+]);
+```
+
+### Relancer un payout en échec
+
+Use `retryPayout($orderId, $payoutId)` to call
+`POST /v1/payout-orders/{orderId}/payout-items/{payoutId}/retry` and re-submit a
+failed payout to the provider.
+
+```php
+$payout = $service->retryPayout(
+    '101c2d3e-4a5b-6c7d-8e9f-0a1b2c3d4e5f', // orderId
+    '9f1c2d3e-4a5b-6c7d-8e9f-0a1b2c3d4e5f', // payoutId
+);
+```
+
+### Initier un payout (order)
+
+Use `initiatePayout($payload, $dryRun)` to call `POST /v1/payout-orders` and
+create an order with its payouts (5 items maximum). Pass `$dryRun = true` to
+simulate the creation without persisting anything.
+
+```php
+$order = $service->initiatePayout([
+    'description' => 'Paiement des commissions - août 2026',
+    'items' => [
+        [
+            'message' => 'Commission de vente',
+            'amount' => 150000,
+            'beneficiary' => ['name' => 'Mamadou Diallo'],
+            'destination' => [
+                'type' => 'WALLET',
+                'countryCode' => 'GN',
+                'currencyCode' => 'GNF',
+                'account' => [
+                    'accountNumber' => '622000000',
+                    'providerCode' => 'OM',
+                ],
+            ],
+        ],
+    ],
+]);
+
+$simulation = $service->initiatePayout($payload, dryRun: true);
+```
+
+### Détails d'un order
+
+Use `getPayoutOrder($orderId)` to call `GET /v1/payout-orders/{orderId}`.
+
+```php
+$order = $service->getPayoutOrder('D4E5F6');
+```
+
+### Lister les orders
+
+Use `getPayoutOrders($query)` to call `GET /v1/payout-orders`.
+
+```php
+$orders = $service->getPayoutOrders([
+    'paginationRequest' => [
+        'page' => 0,
+        'size' => 20,
+    ],
+]);
 ```
 
 ## Webhooks

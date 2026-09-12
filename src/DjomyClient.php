@@ -144,9 +144,9 @@ final class DjomyClient
         return $this->send('GET', $endpoint, [], $query, true);
     }
 
-    public function post(string $endpoint, array $data = []): array
+    public function post(string $endpoint, array $data = [], array $query = []): array
     {
-        return $this->send('POST', $endpoint, $data, [], true);
+        return $this->send('POST', $endpoint, $data, $query, true);
     }
 
     public function delete(string $endpoint): array
