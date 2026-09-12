@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/medchelios/djomy-payment/compare/v1.1.0...v1.1.1) (2026-09-12)
+
+
+### Documentation
+
+* add contribution guide and license ([dd2fede](https://github.com/medchelios/djomy-payment/commit/dd2fede54200dfadc8ca8fa1389707926e0cc5e0))
+
 ## [1.1.0](https://github.com/medchelios/djomy-payment/compare/v1.0.0...v1.1.0) (2026-09-12)
 
 

@@ -3,7 +3,7 @@
     "name": "tmoh/djomy-payment",
     "type": "library",
     "description": "Framework-agnostic PHP package (Laravel 10+, Symfony, standalone) for Djomy Payment Platform API integration",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "keywords": [
         "payment",
         "payment-links",
